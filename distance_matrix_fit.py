@@ -14,7 +14,24 @@ def haltonseq(N, s):
     return sampler.random(N)
 
 def make_sd_grid(s, neval):
-    return np.linspace(0, 1, neval).reshape(-1, 1) * np.ones((neval, s))
+    if s==3:
+        xe, ye, ze = np.meshgrid(np.linspace(0, 1, neval), 
+                             np.linspace(0, 1, neval), 
+                             np.linspace(0, 1, neval))
+
+        xe = xe.flatten()
+        ye = ye.flatten()
+        ze = ze.flatten()
+        epoints=np.vstack((np.vstack((xe, ye)),ze)).T
+    elif s==2:
+        xe,ye=np.meshgrid(np.linspace(0,1,neval),np.linspace(0,1,neval))
+        xe=xe.flatten()
+        ye=ye.flatten()
+        
+        epoints=np.vstack((xe, ye)).T
+    else:
+        epoints=np.array(np.meshgrid(np.linspace(0,1,neval))).T
+    return epoints
 
 def test_function(x):
     n = x.shape[1]
@@ -26,15 +43,16 @@ def test_function(x):
         s[i] = 4**n * product
     return s
 
-s = 3
+s = 1
 k = 2
-N = max((2 - k + 1) * s, 1)
+N = (2*k+1)**s
 neval = 10
 M = neval - s
 
 dsites = haltonseq(N, s)
 ctrs = dsites
 epoints = make_sd_grid(s, neval)
+#print(epoints.shape)
 rhs = test_function(dsites)
 
 IM = distance_matrix(dsites, ctrs)
@@ -64,8 +82,8 @@ if s == 1:
     plt.close()
 
 elif s == 2:
-    xe = epoints[:, 1].reshape(neval, neval)
-    ye = epoints[:, 0].reshape(neval, neval)
+    xe = epoints[:, 0].reshape(neval, neval)
+    ye = epoints[:, 1].reshape(neval, neval)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -74,13 +92,9 @@ elif s == 2:
     plt.close()
 
 elif s == 3:
-    xe, ye, ze = np.meshgrid(np.linspace(0, 1, neval), 
-                             np.linspace(0, 1, neval), 
-                             np.linspace(0, 1, neval))
-
-    xe = xe.flatten()
-    ye = ye.flatten()
-    ze = ze.flatten()
+    xe=epoints[:,0]
+    ye=epoints[:,1]
+    ze=epoints[:,2]
 
     Pf_flat = Pf.flatten()
 
