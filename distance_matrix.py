@@ -3,6 +3,7 @@ import numpy as np
 
 def distance_matrix(dsites, ctrs):
     (m,s)=dsites.shape
+    print(dsites.shape)
     (n,s)=ctrs.shape
     dm=np.zeros((m,n))
     for d in range(s):
